@@ -5,3 +5,4 @@ scikit-learn==1.0.2
 numpy==1.21.6
 torch==1.12.1
 faiss-cpu==1.7.2
+python-dotenv
