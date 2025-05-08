@@ -1,0 +1,3 @@
+Alice – Lead Data Scientist with 7 years in deep learning and NLP.
+Raj – Backend Engineer specializing in scalable microservices.
+Tariq – Product Manager passionate about user-centered design and AI ethics.
