@@ -4,6 +4,11 @@ import google.generativeai as genai
 from rag import RAGEngine
 
 # Configure Gemini with the API key from Streamlit secrets
+import streamlit as st
+
+if "GEMINI_API_KEY" not in st.secrets:
+    raise RuntimeError("❌ GEMINI_API_KEY is missing in Streamlit secrets")
+
 api_key = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=api_key)
 
