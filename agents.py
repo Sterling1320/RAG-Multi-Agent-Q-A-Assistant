@@ -3,9 +3,19 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 from rag import RAGEngine
 
-load_dotenv()  # Load variables from .env
+# Load from .env if available
+load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))  # No need to set manually
+# Try loading from Streamlit secrets if running in Streamlit
+try:
+    import streamlit as st
+    if "GEMINI_API_KEY" in st.secrets:
+        os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
+except ImportError:
+    pass  # If streamlit isn't installed (e.g., during CLI use), skip it
+
+# Configure Gemini with the API key from env
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 class Agent:
     def __init__(self):
