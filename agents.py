@@ -3,23 +3,30 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 from rag import RAGEngine
 
-# Load from .env if available
 load_dotenv()
 
-# Try loading from Streamlit secrets if running in Streamlit
 try:
     import streamlit as st
     if "GEMINI_API_KEY" in st.secrets:
         os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
 except ImportError:
-    pass  # If streamlit isn't installed (e.g., during CLI use), skip it
+    st = None  # In case you're not using Streamlit locally
 
-# Configure Gemini with the API key from env
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Retrieve the key safely
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise RuntimeError("❌ GEMINI_API_KEY not found. Set it in .env or Streamlit secrets.")
+
+# Configure Gemini
+genai.configure(api_key=api_key)
 
 class Agent:
     def __init__(self):
-        self.model = genai.GenerativeModel("gemini-1.5-flash")
+        try:
+            self.model = genai.GenerativeModel("gemini-1.5-flash")
+        except Exception as e:
+            raise RuntimeError(f"❌ Failed to initialize Gemini model: {e}")
+
         self.rag = RAGEngine()
         self.rag.load_documents("docs")
 
@@ -55,8 +62,11 @@ Question:
 
 Answer:"""
 
-            response = self.model.generate_content(prompt)
-            answer = response.text.strip()
+            try:
+                response = self.model.generate_content(prompt)
+                answer = response.text.strip()
+            except Exception as e:
+                answer = f"❌ Failed to generate content: {e}"
 
         log["answer"] = answer
         return log
