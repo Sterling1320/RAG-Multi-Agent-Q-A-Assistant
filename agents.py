@@ -25,18 +25,26 @@ class Agent:
     def run(self, query):
         log = {"used_tool": "None", "answer": "No answer", "context": "No context found"}
 
+        # Check for math-related query
         if any(kw in query.lower() for kw in ["calculate", "+", "-", "*", "/", "math"]):
             try:
-                answer = str(eval(query))
+                # Clean the query to isolate the math expression
+                expression = ''.join(c if c.isdigit() or c in '+-*/.()' else ' ' for c in query)
+                # Attempt to evaluate the expression
+                answer = str(eval(expression))
                 log["used_tool"] = "calculator"
                 log["context"] = "N/A"
-            except Exception:
-                answer = "Invalid calculation."
+            except Exception as e:
+                answer = f"Invalid calculation: {str(e)}"
+
+        # Check for "define" related query
         elif "define" in query.lower():
             word = query.lower().replace("define", "").strip()
+            # Simulated definition response (replace with actual lookup in the future)
             answer = f"{word}: [definition lookup not implemented]"
             log["used_tool"] = "dictionary"
             log["context"] = "N/A"
+
         else:
             context_chunks = self.rag.retrieve(query)
             context_texts = [c['text'] for c in context_chunks]

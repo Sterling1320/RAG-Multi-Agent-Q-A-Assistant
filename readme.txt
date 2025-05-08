@@ -1,39 +1,30 @@
 RAG + Multi-Agent Q&A Assistant
 
-Objective:
-A knowledge assistant that retrieves relevant information from a document collection using Retrieval-Augmented Generation (RAG) and generates natural-language answers using the Gemini LLM.
+This project is a question-answering assistant that uses a combination of multi-agent logic and retrieval-augmented generation (RAG). It can handle simple math, look up definitions (placeholder), or answer general questions using document context and Gemini.
 
-Features:
-- Document Ingestion & Chunking: Loads documents, chunks them, and generates embeddings for efficient retrieval.
-- RAG Retrieval: Uses cosine similarity to find the top 3 most relevant document chunks.
-- LLM Integration: Utilizes the Gemini LLM to generate natural language answers based on the retrieved context.
-- Tool Routing: Routes queries containing math or definition requests to specific tools (calculator or dictionary) and other queries to the RAG → LLM pipeline.
-- Web Interface: Built with Streamlit to interact with the assistant via a simple UI.
+Architecture:
+- The Agent class decides which tool to use based on the query: a calculator, dictionary (not fully implemented), or a RAG pipeline.
+- RAGEngine loads text documents from the docs folder, splits them into chunks, and encodes them using sentence-transformers. It retrieves the most relevant chunks for a given query.
+- The selected context is passed to Gemini (gemini-2.0-flash) for answer generation.
+- The interface is built using Streamlit. A CLI is also available for testing.
 
-Installation:
-1. Install required dependencies:
-    pip install -r requirements.txt
+Key Design Choices:
+- Modular agent-based structure for easy extensibility.
+- Lightweight embedding model (all-MiniLM-L6-v2) for fast retrieval.
+- Fast LLM (Gemini Flash) for quick responses.
+- Simple fallback logic in case of unsupported queries.
 
-2. Set up your API keys:
-    - Obtain a Gemini API key from Google and set it as an environment variable:
-        export GEMINI_API_KEY="your-api-key"
-    - Alternatively, replace the API key directly in the code (not recommended for security reasons).
+How to Run:
+1. Install dependencies:
+   pip install -r requirements.txt
 
-Usage:
-1. To run the Streamlit web interface:
-    streamlit run interface.py
+2. Place .txt documents in a folder named docs.
 
-2. To run from the command line (CLI):
-    python main.py
+3. Add your Gemini API key in .streamlit/secrets.toml:
+   GEMINI_API_KEY = "your_api_key_here"
 
-Key Components:
-- RAG Engine: Manages document chunking and retrieval using embeddings.
-- Agent: Orchestrates the logic of routing queries to either the RAG engine, Gemini model, or specific tools (calculator, dictionary).
-- Streamlit UI: Provides a text input box for user queries, displaying the answer, tool used, and retrieved context.
+4. Launch the Streamlit app:
+   streamlit run interface.py
 
-Known Issues:
-- Latency: Initial loading of the Gemini model, document ingestion, and API calls may introduce delays, especially on the first run. This is due to model configuration and document embedding, which can take time. Subsequent queries should experience reduced latency due to caching of the resources.
-
-Future Improvements:
-- Implement more efficient document indexing and retrieval techniques (e.g., using FAISS).
-- Add more external tool integrations (e.g., dictionary API for word definitions).
+5. (Optional) Run from terminal using:
+   python main.py
